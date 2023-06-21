@@ -1,0 +1,76 @@
+#!/bin/bash
+set -eu
+
+# shellcheck source=start-utils
+. "${SCRIPTS:-/}start-utils"
+
+: "${CF_PAGE_URL:=}"
+: "${CF_SLUG:=}"
+: "${CF_FILE_ID:=}"
+: "${CF_FILENAME_MATCHER:=}"
+: "${CF_PARALLEL_DOWNLOADS:=4}"
+: "${CF_FORCE_SYNCHRONIZE:=false}"
+: "${CF_EXCLUDE_INCLUDE_FILE=https://raw.githubusercontent.com/itzg/docker-minecraft-server/master/files/cf-exclude-include.json}"
+: "${CF_EXCLUDE_MODS:=}"
+: "${CF_FORCE_INCLUDE_MODS:=}"
+: "${CF_SET_LEVEL_FROM:=}" # --set-level-from
+: "${CF_OVERRIDES_SKIP_EXISTING:=false}" # --overrides-skip-existing
+: "${CF_DOWNLOADS_REPO=$([ -d /downloads ] && echo '/downloads' || echo '')}"
+: "${CF_MODPACK_MANIFEST:=}"
+
+resultsFile=/data/.install-curseforge.env
+
+isDebugging && set -x
+
+args=(
+  --results-file="$resultsFile"
+)
+if [[ $CF_PAGE_URL ]]; then
+  args+=(--modpack-page-url="$CF_PAGE_URL")
+fi
+if [[ $CF_FILE_ID ]]; then
+  args+=(--file-id="$CF_FILE_ID")
+fi
+if [[ $CF_SLUG ]]; then
+  args+=(--slug="$CF_SLUG")
+fi
+if [[ $CF_MODPACK_MANIFEST ]]; then
+  args+=(--modpack-manifest="$CF_MODPACK_MANIFEST")
+fi
+if [[ $CF_FILENAME_MATCHER ]]; then
+  args+=(--filename-matcher="$CF_FILENAME_MATCHER")
+fi
+if [[ ${CF_SET_LEVEL_FROM} ]]; then
+  args+=(--set-level-from="$CF_SET_LEVEL_FROM")
+fi
+args+=(
+  --force-synchronize="$CF_FORCE_SYNCHRONIZE"
+  --overrides-skip-existing="$CF_OVERRIDES_SKIP_EXISTING"
+)
+
+if [[ $CF_EXCLUDE_MODS ]]; then
+  args+=( --exclude-mods="$CF_EXCLUDE_MODS" )
+fi
+if [[ $CF_FORCE_INCLUDE_MODS ]]; then
+  args+=( --force-include-mods="$CF_FORCE_INCLUDE_MODS" )
+fi
+if [[ $CF_EXCLUDE_INCLUDE_FILE ]]; then
+  args+=( --exclude-include-file="$CF_EXCLUDE_INCLUDE_FILE" )
+fi
+if [[ $CF_DOWNLOADS_REPO ]]; then
+  args+=( --downloads-repo="$CF_DOWNLOADS_REPO" )
+fi
+
+if ! mc-image-helper install-curseforge "${args[@]}"; then
+    log "ERROR failed to auto-install CurseForge modpack"
+    exit 1
+fi
+
+# grab SERVER, TYPE, VERSION and export it
+set -a
+# shellcheck disable=SC1090
+source "${resultsFile}"
+set +a
+resolveFamily
+
+exec "${SCRIPTS:-/}start-setupWorld" "$@"

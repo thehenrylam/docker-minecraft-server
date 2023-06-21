@@ -1,6 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
-set -e
+export TARGET
+
+set -euo pipefail
 
 apt-get update
 
@@ -23,7 +25,14 @@ apt-get install -y \
   unzip \
   zstd \
   lbzip2 \
-  knockd \
-  nfs-common
+  nfs-common \
+  libpcap0.8 \
+  webp
 
 apt-get clean
+
+# Patched knockd
+curl -fsSL -o /tmp/knock.tar.gz https://github.com/Metalcape/knock/releases/download/0.8.1/knock-0.8.1-$TARGET.tar.gz
+tar -xf /tmp/knock.tar.gz -C /usr/local/ && rm /tmp/knock.tar.gz
+ln -s /usr/local/sbin/knockd /usr/sbin/knockd
+find /usr/lib -name 'libpcap.so.0.8' -execdir cp '{}' libpcap.so.1 \;

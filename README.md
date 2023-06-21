@@ -4,6 +4,14 @@
 [![Discord](https://img.shields.io/discord/660567679458869252?label=Discord&logo=discord)](https://discord.gg/DXfKpjB)
 [![Build and Publish](https://github.com/itzg/docker-minecraft-server/workflows/Build%20and%20Publish/badge.svg)](https://github.com/itzg/docker-minecraft-server/actions)
 [![](https://img.shields.io/badge/Donate-Buy%20me%20a%20coffee-orange.svg)](https://www.buymeacoffee.com/itzg)
+[![Documentation Status](https://readthedocs.org/projects/docker-minecraft-server/badge/?version=latest)](https://docker-minecraft-server.readthedocs.io/en/latest/?badge=latest)
+
+ [![](docs/img/docs-banner.png)](https://docker-minecraft-server.readthedocs.io/)
+
+<details>
+<summary>Expand to see deprecated docs sections -- soon will be removed</summary>
+
+## Intro
 
 This docker image provides a Minecraft Server that will automatically download the latest stable
 version at startup. You can also run/upgrade to any specific version or the
@@ -19,11 +27,9 @@ where, in this case, the standard server port 25565, will be exposed on your hos
 
 > Be sure to always include `-e EULA=TRUE` in your commands and container definitions, as Mojang/Microsoft requires EULA acceptance.
 
-By default, the container will download the latest version of the "vanilla" [Minecraft: Java Edition server](https://www.minecraft.net/en-us/download/server) provided by Mojang. The [`VERSION`](#versions) and the [`TYPE`](#server-types) can be configured to create many variations of desired Minecraft server. 
+> **DO NOT** port forward RCON on 25575 without first setting `RCON_PASSWORD` to a secure value. It is highly recommended to only use RCON within the container, such as with `rcon-cli`.
 
-## Mitigated Log4jShell Vulnerability
-
-**Please ensure you have pulled the latest image** since [all official mitigations](https://www.minecraft.net/en-us/article/important-message--security-vulnerability-java-edition) are automatically applied by the container startup process.
+By default, the container will download the latest version of the "vanilla" [Minecraft: Java Edition server](https://www.minecraft.net/en-us/download/server) provided by Mojang. The [`VERSION`](#versions) and the [`TYPE`](#server-types) can be configured to create many variations of desired Minecraft server.
 
 ## Looking for a Bedrock Dedicated Server
 
@@ -80,7 +86,7 @@ Unless you're on a home/private LAN, you should [enable TLS access](https://docs
 
 Everything the container manages is located under the **container's** `/data` path, as shown here:
 
-![](docs/level-vs-world.drawio.png)
+![](docs/img/level-vs-world.drawio.png)
 
 > NOTE: The container path `/data` is pre-declared as a volume, so if you do nothing then it will be allocated as an anonymous volume. As such, it is subject to removal when the container is removed. 
 
@@ -195,6 +201,8 @@ When using the image `itzg/minecraft-server` without a tag, the `latest` image t
 | java17-openj9     | 17           | Debian | OpenJ9      | amd64             |
 | java17-graalvm-ce | 17           | Oracle | GraalVM CE  | amd64,arm64       |
 | java17-alpine     | 17           | Alpine | Hotspot     | amd64             |
+| java20-alpine     | 19           | Alpine | Hotspot     | amd64             |
+| java20            | 19           | Ubuntu | Hotspot     | amd64,arm64,armv7 |
 
 For example, to use Java version 8 on any supported architecture:
 
@@ -207,6 +215,7 @@ For example, to use Java version 8 on any supported architecture:
 ### Deprecated Image Tags
 
 The following image tags have been deprecated and are no longer receiving updates:
+- java19
 - adopt13
 - adopt14
 - adopt15
@@ -452,6 +461,24 @@ If you have attached a host directory to the `/data` volume, then you can instal
 
 [You can also auto-download plugins using `SPIGET_RESOURCES`.](#auto-downloading-spigotmcbukkitpapermc-plugins-with-spiget)
 
+### Running a Folia server
+
+Enable Folia server mode by adding a `-e TYPE=FOLIA` to your command-line.
+
+By default, the container will run the latest build of [Folia server](https://papermc.io/downloads) but you can also choose to run a specific build with `-e FOLIABUILD=26`.
+
+    docker run -d -v /path/on/host:/data \
+        -e TYPE=FOLIA \
+        -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server
+
+If you are hosting your own copy of Folia you can override the download URL with `FOLIA_DOWNLOAD_URL=<url>`.
+
+If you have attached a host directory to the `/data` volume, then you can install plugins via the `plugins` subdirectory. You can also [attach a `/plugins` volume](#optional-plugins-mods-and-config-attach-points). If you add plugins while the container is running, you'll need to restart it to pick those up.
+
+[You can also auto-download plugins using `SPIGET_RESOURCES`.](#auto-downloading-spigotmcbukkitpapermc-plugins-with-spiget)
+
+> NOTE: The Folia type inherits from the Paper type. Paper's variables will override the Folia ones.
+
 ### Running a Pufferfish server
 
 A [Pufferfish](https://github.com/pufferfish-gg/Pufferfish) server, which is "a highly optimized Paper fork designed for large servers requiring both maximum performance, stability, and "enterprise" features."
@@ -508,16 +535,6 @@ A [Catserver](http://catserver.moe/) type server can be used with
 
 > **NOTE** Catserver only provides a single release stream, so `VERSION` is ignored
 
-### Running a Loliserver type server
-
-A [Loliserver](https://github.com/Loli-Server/LoliServer) type server can be used with
-
-    -e TYPE=LOLISERVER
-
-> **NOTE** Loliserver only provides a single release stream, so `VERSION` is ignored
-
-> **Disclaimer** The retrieval of the serverjar is not bulletproof. It can and probably will change in the future.
-
 ### Running a Canyon server
 
 [Canyon](https://github.com/canyonmodded/canyon) is a fork of CraftBukkit for Minecraft Beta 1.7.3. It includes multiple enhancements whilst also retaining compatibility with old Bukkit plugins and mods as much as possible.
@@ -526,9 +543,10 @@ A [Loliserver](https://github.com/Loli-Server/LoliServer) type server can be use
 
 > **NOTE** only `VERSION=b1.7.3` is supported. Since that version pre-dates the health check mechanism used by this image, that will need to be disabled by setting `DISABLE_HEALTHCHECK=true`.
 
-By default, the latest build will be used; however, a specific build number can be selected by setting `CANYON_BUILD`, such as
+Canyon is on a temporary hiatus, so by default the final build from GitHub will be used; however, a specific build number can be selected in some instances by setting `CANYON_BUILD`, such as
 
-    -e CANYON_BUILD=11
+    -e CANYON_BUILD=6
+    -e CANYON_BUILD=26
 
 ### Running a SpongeVanilla server
 
@@ -577,6 +595,32 @@ Configuration options with defaults:
 
 Crucible is only available for 1.7.10, so be sure to set `VERSION=1.7.10`.
 
+## Running a server with a Modrinth modpack
+
+[Modrinth Modpacks](https://modrinth.com/modpacks) can automatically be installed along with the required mod loader (Forge or Fabric) by setting `TYPE` to "MODRINTH". Upgrading (and downgrading) takes care of cleaning up old files and upgrading (and downgrading) the mod loader.
+
+The desired modpack project is specified with the `MODRINTH_PROJECT` environment variable and must be one of:
+
+- The project "slug", which is located in the URL shown here:
+
+  ![](docs/img/modrinth-project-slug.drawio.png)
+- The project ID, which is located in the bottom of the left panel, shown here
+
+  ![](docs/img/modrinth-project-id.drawio.png)
+- The project page URL, such as <https://modrinth.com/modpack/cobblemon-fabric>. As described below, this can further be the page URL of a modpack's version page.
+  
+The automatic modpack version resolving can be narrowed in a few ways:
+
+The latest release or beta version, respectively, of the Modrinth modpack is selected when `VERSION` is "LATEST" or "SNAPSHOT". That can be overridden by setting `MODRINTH_DEFAULT_VERSION_TYPE` to "release", "beta", or "alpha". 
+
+Furthermore, the resolved modpack version can be narrowed by setting `VERSION` to a specific Minecraft version, such as "1.19.2". 
+
+The selected version can also be narrowed to a particular mod loader by setting `MODRINTH_LOADER` to either "forge", "fabric", or "quilt".
+
+Instead of auto resolving, a specific version of modpack file can be specified by passing the version's page URL to `MODRINTH_PROJECT`, such as <https://modrinth.com/modpack/cobblemon-fabric/version/1.3.2> or by setting `MODRINTH_VERSION` to the version ID or number located in the Metadata section, as shown here
+
+![](docs/img/modrinth-version-id.drawio.png)
+
 ## Running a server with a Feed the Beast modpack
 
 > **NOTE** requires one of the Ubuntu with Hotspot images listed in [the Java versions section](#running-minecraft-server-on-different-java-version).
@@ -589,7 +633,7 @@ Crucible is only available for 1.7.10, so be sure to set `VERSION=1.7.10`.
   https://www.feed-the-beast.com/modpacks/23-ftb-infinity-evolved-17
                                           ^^
   ```
-- `FTB_MODPACK_VERSION_ID`: optional, the numerical ID of the version to install. If not specified, the latest version will be installed. The "Version ID" can be obtained by hovering over a server file entry and grabbing [this ID in the URL](docs/ftba-version-id-popup.png).
+- `FTB_MODPACK_VERSION_ID`: optional, the numerical ID of the version to install. If not specified, the latest version will be installed. The "Version ID" can be obtained by hovering over a server file entry and grabbing [this ID in the URL](docs/img/ftba-version-id-popup.png).
 
 ### Upgrading
 
@@ -609,6 +653,110 @@ docker run -d --name mc-ftb -e EULA=TRUE \
 > Normally you will also add `-v` volume for `/data` since the mods and config are installed there along with world data.
 
 ## Running a server with a CurseForge modpack
+
+### Auto CurseForge Management
+
+To manage a CurseForge modpack automatically with upgrade support, pinned or latest version tracking, set `TYPE` to "AUTO_CURSEFORGE". The appropriate mod loader (Forge / Fabric) version will be automatically installed as declared by the modpack. This mode will also take care of cleaning up unused files installed by previous versions of the modpack, but world data is never auto-removed.
+
+> **NOTES:**
+> 
+> A CurseForge API key is **required** to use this feature. Go to their [developer console](https://console.curseforge.com/), generate an API key, and set the environment variable `CF_API_KEY`.  
+>
+> When entering your API Key in a docker compose file you will need to escape any `$` character with a second `$`.  
+>
+> Example if your key is `$11$22$33aaaaaaaaaaaaaaaaaaaaaaaaaa`:
+> ```yaml
+> environment:
+>   CF_API_KEY: '$$11$$22$$33aaaaaaaaaaaaaaaaaaaaaaaaaa'
+> ```
+> If you use `docker run` you will need to make sure to use single quotes:
+> 
+> ```shell
+> docker run ... -e CF_API_KEY='$11$22$33aaaaaaaaaaaaaaaaaaaaaaaaaa'
+> ```
+> 
+> To avoid exposing the API key, it is highly recommended to use a `.env` file, which is [loaded automatically by docker compose](https://docs.docker.com/compose/environment-variables/set-environment-variables/#substitute-with-an-env-file). `$`'s in the value still need to escaped with a second `$` and the variable needs to be referenced from the compose file, such as:
+> ```yaml
+> environment:
+>   CF_API_KEY: ${CF_API_KEY}
+> ```
+>
+> To use the equivalent with `docker run` you need to specify the `.env` file explicitly:
+> ```
+> docker run --env-file=.env itzg/minecraft-server
+> ```
+> 
+> Be sure to use the appropriate [image tag for the Java version compatible with the modpack](#running-minecraft-server-on-different-java-version).
+> 
+> Most modpacks require a good amount of memory, so it best to set `MEMORY` to at least "4G" since the default is only 1 GB.
+
+Use one of the following to specify the modpack to install:
+
+Pass a page URL to the modpack or a specific file with `CF_PAGE_URL` such as the modpack page "https://www.curseforge.com/minecraft/modpacks/all-the-mods-8" or a specific file "https://www.curseforge.com/minecraft/modpacks/all-the-mods-8/files/4248390". For example:
+
+```
+-e TYPE=AUTO_CURSEFORGE -e CF_PAGE_URL=https://www.curseforge.com/minecraft/modpacks/all-the-mods-8
+```
+
+Instead of a URL, the modpack slug can be provided as `CF_SLUG`. The slug is the short identifier visible in the URL after "/modpacks/", such as
+
+![cf-slug](docs/img/cf-slug.png)
+
+For example:
+```
+-e TYPE=AUTO_CURSEFORGE -e CF_SLUG=all-the-mods-8
+```
+
+For mod, modpacks, and world files that are not allowed for automated download, the container path `/downloads` can be attached and matching files will be retrieved from there. The subdirectories `mods`, `modpacks`, and `worlds` will also be checked accordingly. To change the source location of downloaded files, set `CF_DOWNLOADS_REPO` to an existing container path. To disable this feature, set `CF_DOWNLOADS_REPO` to an empty string.
+
+If the authors of the modpack have disallowed project distribution, then the desired **client** modpack zip will need to be manually downloaded and made available to the container. The path to that file must be passed to `CF_MODPACK_ZIP`. Similarly, the container path to a modpack manifest JSON can be passed to `CF_MODPACK_MANIFEST`.  In either case, the modpack slug or page URL must still be provided.  
+
+The latest file will be located and used by default, but if a specific version is desired you can use one of the following options. With any of these options **do not select a server file** -- they lack the required manifest and defeat the ability to consistently automate startup.
+
+- Use `CF_PAGE_URL`, but include the full URL to a specific file
+- Set `CF_FILE_ID` to the numerical file ID 
+- Specify a substring to match the desired filename with `CF_FILENAME_MATCHER`
+
+The following shows where to get the URL to the specific file and also shows where the file ID is located:
+
+![cf-file-id](docs/img/cf-file-id.png)
+
+The following examples all refer to version 1.0.7 of ATM8:
+
+```
+-e CF_PAGE_URL=https://www.curseforge.com/minecraft/modpacks/all-the-mods-8/files/4248390
+```
+
+```
+-e CF_SLUG=all-the-mods-8 -e CF_FILE_ID=4248390
+```
+
+```
+-e CF_SLUG=all-the-mods-8 -e CF_FILENAME_MATCHER=1.0.7
+```
+
+Quite often there are mods that need to be excluded, such as ones that did not properly declare as a client mod via the file's game versions. Similarly, there are some mods that are incorrectly tagged as client only. The following describes two options to exclude/include mods:
+
+Global and per modpack exclusions can be declared in a JSON file and referenced with `CF_EXCLUDE_INCLUDE_FILE`. By default, [the file bundled with the image](files/cf-exclude-include.json) will be used, but can be disabled by setting this to an empty string. The schema of this file [is documented here](https://github.com/itzg/mc-image-helper#excludeinclude-file-schema).
+
+Alternatively, they can be excluded by passing a comma or space delimited list of **project** slugs or IDs via `CF_EXCLUDE_MODS`. Similarly, there are some mods that are incorrectly tagged as client only. For those, pass the **project** slugs or IDs via `CF_FORCE_INCLUDE_MODS`. These lists will be combined with the content of the exclude/include file, if given.
+
+A mod's project ID can be obtained from the right hand side of the project page:
+![cf-project-id](docs/img/cf-project-id.png)
+
+If needing to iterate on the options above, set `CF_FORCE_SYNCHRONIZE` to "true" to ensure the exclude/includes are re-evaluated.
+
+> **NOTE:** these options are provided to empower you to get your server up and running quickly. Please help out by reporting an issue with the respective mod project. Ideally mod developers should [use correct registrations for one-sided client mods](https://docs.minecraftforge.net/en/latest/concepts/sides/#writing-one-sided-mods). Understandably, those code changes may be non-trivial, so mod authors can also add "Client" to the game versions when publishing.
+
+Some modpacks come with world/save data via a worlds file and/or the overrides provided with the modpack. Either approach can be selected to set the `LEVEL` to the resulting saves directory by setting `CF_SET_LEVEL_FROM` to either:
+- `WORLD_FILE`
+- `OVERRIDES`
+
+Other configuration available:
+- `CF_PARALLEL_DOWNLOADS` (default is 4): specify how many parallel mod downloads to perform
+- `CF_OVERRIDES_SKIP_EXISTING` (default is false): if set, files in the overrides that already exist in the data directory are skipped. **NOTE** world data is always skipped, if present.
+
+### Old approach
 
 Enable this server mode by adding `-e TYPE=CURSEFORGE` to your command-line,
 but note the following additional steps needed...
@@ -673,13 +821,13 @@ packwiz modpack defitions are processed before other mod definitions (`MODPACK`,
 There are optional volume paths that can be attached to supply content to be copied into the data area:
 
 `/plugins`
-: contents are synchronized into `/data/plugins` for Bukkit related server types. Set `SYNC_SKIP_NEWER_IN_DESTINATION=false` if you want files from `/plugins` to take precedence over newer files in `/data/plugins`.
+: contents are synchronized into `/data/plugins` for Bukkit related server types. The source can be changed by setting `COPY_PLUGINS_SRC`. The destination can be changed by setting `COPY_PLUGINS_DEST`. Set `SYNC_SKIP_NEWER_IN_DESTINATION=false` if you want files from `/plugins` to take precedence over newer files in `/data/plugins`.
 
 `/mods`
-: contents are synchronized into `/data/mods` for Fabric and Forge related server types. The destination can be changed by setting `COPY_MODS_DEST`.
+: contents are synchronized into `/data/mods` for Fabric and Forge related server types. The source can be changed by setting `COPY_MODS_SRC`. The destination can be changed by setting `COPY_MODS_DEST`.
 
 `/config`
-: contents are synchronized into `/data/config` by default, but can be changed with `COPY_CONFIG_DEST`. For example, `-v ./config:/config -e COPY_CONFIG_DEST=/data` will allow you to copy over files like `bukkit.yml` and so on directly into the server directory. Set `SYNC_SKIP_NEWER_IN_DESTINATION=false` if you want files from `/config` to take precedence over newer files in `/data/config`.
+: contents are synchronized into `/data/config` by default, but can be changed with `COPY_CONFIG_DEST`. The source can be changed by setting `COPY_CONFIG_SRC`. For example, `-v ./config:/config -e COPY_CONFIG_DEST=/data` will allow you to copy over files like `bukkit.yml` and so on directly into the server directory. Set `SYNC_SKIP_NEWER_IN_DESTINATION=false` if you want files from `/config` to take precedence over newer files in `/data/config`.
 
 By default, the [environment variable processing](#replacing-variables-inside-configs) is performed on synchronized files that match the expected suffixes in `REPLACE_ENV_SUFFIXES` (by default "yml,yaml,txt,cfg,conf,properties,hjson,json,tml,toml") and are not excluded by `REPLACE_ENV_VARIABLES_EXCLUDES` and `REPLACE_ENV_VARIABLES_EXCLUDE_PATHS`. This processing can be disabled by setting `REPLACE_ENV_DURING_SYNC` to `false`.
 
@@ -708,9 +856,9 @@ For example, the following will auto-download the [EssentialsX](https://www.spig
 
     -e SPIGET_RESOURCES=9089,34315
 
-### Auto-download mods from Modrinth
+### Auto-download mods and plugins from Modrinth
 
-[Modrinth](https://modrinth.com/) is an open source modding platform with a clean, easy to use website for finding [Fabric and Forge mods](https://modrinth.com/mods). At startup, the container will automatically locate and download the newest versions of mod files that correspond to the `TYPE` and `VERSION` in use. Older file versions downloaded previously will automatically be cleaned up.
+[Modrinth](https://modrinth.com/) is an open source modding platform with a clean, easy to use website for finding [Fabric and Forge mods](https://modrinth.com/mods). At startup, the container will automatically locate and download the newest versions of mod/plugin files that correspond to the `TYPE` and `VERSION` in use. Older file versions downloaded previously will automatically be cleaned up.
 
 - **MODRINTH_PROJECTS** : comma separated list of project slugs (short name) or IDs. The project ID can be located in the "Technical information" section. The slug is the part of the page URL that follows `/mod/`:
   ```
@@ -718,6 +866,10 @@ For example, the following will auto-download the [EssentialsX](https://www.spig
                              ----------
                               |
                               +-- project slug
+  ```
+  Also, specific version/type can be declared using colon symbol and version id/type after the project slug. The version id can be found at 'Metadata' section. Valid version types are `release`, `beta`, `alpha`. For instance:
+  ```
+    -e MODRINTH_PROJECTS=fabric-api,fabric-api:PbVeub96,fabric-api:beta
   ```
 - **MODRINTH_DOWNLOAD_OPTIONAL_DEPENDENCIES**=true : required dependencies of the project will _always_ be downloaded and optional dependencies can also be downloaded by setting this to `true`
 - **MODRINTH_ALLOWED_VERSION_TYPE**=release : the version type is used to determine the newest version to use from each project. The allowed values are `release`, `beta`, `alpha`.
@@ -879,7 +1031,7 @@ docker run ... -v $HOME/worlds:/worlds:ro -e WORLD=/worlds/basic
 
 The following diagram shows how this option can be used in a compose deployment with a relative directory:
 
-![](docs/world-copy-compose-project.drawio.png)
+![](docs/img/world-copy-compose-project.drawio.png)
 
 ### Overwrite world on start
 The world will only be downloaded or copied if it doesn't exist already. Set `FORCE_WORLD_COPY=TRUE` to force overwrite the world on every server start.
@@ -1002,7 +1154,7 @@ The section symbol (§) and other unicode characters are automatically converted
 
 renders
 
-![](docs/motd-example.png)
+![](docs/img/motd-example.png)
 
 To produce a multi-line MOTD, you will need to double escape the newline such as
 
@@ -1075,9 +1227,9 @@ The server icon which has been set doesn't get overridden by default. It can be 
 
 RCON is **enabled by default** to allow for graceful shut down the server and coordination of save state during backups. RCON can be disabled by setting `ENABLE_RCON` to "false".
 
-The default password is "minecraft" but **change the password before deploying into production** by setting `RCON_PASSWORD`.
+The RCON password can be set via `RCON_PASSWORD` or the name of a file that contains the password can be referenced by setting `RCON_PASSWORD_FILE`. If not set, a random password will be generated at each startup.
 
-**DO NOT MAP THE RCON PORT EXTERNALLY** unless you aware of all the consequences and have set a **secure password** with `RCON_PASSWORD`. 
+Regardless of the password set or defaulted, **DO NOT MAP THE RCON PORT EXTERNALLY** unless you sure that is what you intended. 
 
 > Mapping ports (`-p` command line or `ports` in compose) outside the container and docker networking needs to be a purposeful choice. Most production Docker deployments do not need any of the Minecraft ports mapped externally from the server itself.
 
@@ -1792,6 +1944,21 @@ The following environment variables define the behaviour of auto-pausing:
 
 > To troubleshoot, add `DEBUG_AUTOPAUSE=true` to see additional output
 
+### Rootless Autopause
+
+If you're running the container as rootless, you might need to set change the default port forwarder from RootlessKit to slirp4netns.
+
+For Docker, see the following for setup:
+* https://docs.docker.com/engine/security/rootless/#networking-errors
+* https://rootlesscontaine.rs/getting-started/docker/#changing-the-port-forwarder
+
+For Podman, see the following for setup:
+* https://rootlesscontaine.rs/getting-started/podman/#changing-the-port-forwarder
+* Run with
+  ```
+  -e AUTOPAUSE_KNOCK_INTERFACE=tap0 --cap-add=CAP_NET_RAW --network slirp4netns:port_handler=slirp4netns
+  ```
+
 ## Autostop
 
 An option to stop the server after a specified time has been added for niche applications (e.g. billing saving on AWS Fargate). The function is incompatible with the Autopause functionality, as they basically cancel out each other.
@@ -1824,6 +1991,12 @@ To run this image on a RaspberryPi 3 B+, 4, or newer, use any of the image tags 
 
 > If experiencing issues such as "sleep: cannot read realtime clock: Operation not permitted", ensure `libseccomp` is up to date on your host. In some cases adding `:Z` flag to the `/data` mount may be needed, [but use cautiously](https://docs.docker.com/storage/bind-mounts/#configure-the-selinux-label).
 
+## Mitigated Log4jShell Vulnerability
+
+**Please ensure you have pulled the latest image** since [all official mitigations](https://www.minecraft.net/en-us/article/important-message--security-vulnerability-java-edition) are automatically applied by the container startup process.
+
 ## Contributing
     
-See [Development](DEVELOPMENT.md) and [Building](BUILDING.md).
+See [Development](docs/misc/contributing/development.md) and [Building](docs/misc/contributing/building.md).
+
+</details>

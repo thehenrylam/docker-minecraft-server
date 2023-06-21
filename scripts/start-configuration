@@ -83,6 +83,9 @@ if [[ $RCON_PASSWORD_FILE ]]; then
     log ""
 fi
 
+# For rcon-cli access
+echo "password=${RCON_PASSWORD}" > "$HOME/.rcon-cli.env"
+
 function fixJavaPath() {
   # Some Docker management UIs grab all the image declared variables and present them for configuration.
   # When upgrading images across Java versions, that creates a mismatch in PATH's expected by base image.
@@ -102,45 +105,22 @@ function fixJavaPath() {
   fi
 }
 
+
 if ! fixJavaPath; then
   log "ERROR: could not locate path that contains java"
   exit 1
 fi
-
-export VERSIONS_JSON=https://launchermeta.mojang.com/mc/game/version_manifest.json
-
-case "X$VERSION" in
-  X|XLATEST|Xlatest)
-    if ! VANILLA_VERSION=$(get --json-path '$.latest.release' "$VERSIONS_JSON"); then
-      log "ERROR: version lookup failed: $VANILLA_VERSION"
-      exit 1
-    fi
-  ;;
-  XSNAPSHOT|Xsnapshot)
-    if ! VANILLA_VERSION=$(get --json-path '$.latest.snapshot' "$VERSIONS_JSON"); then
-      log "ERROR: version lookup failed: $VANILLA_VERSION"
-      exit 1
-    fi
-  ;;
-  *)
-    VANILLA_VERSION=$VERSION
-  ;;
-esac
-export VANILLA_VERSION
-MAJOR_VANILLA_VERSION=$(get_major_version "$VANILLA_VERSION")
-export MAJOR_VANILLA_VERSION
-log "Resolved version given ${VERSION} into ${VANILLA_VERSION} and major version ${MAJOR_VANILLA_VERSION}"
 
 cd /data || exit 1
 
 export ORIGINAL_TYPE=${TYPE^^}
 
 if isTrue "${ENABLE_AUTOPAUSE}"; then
-  ${SCRIPTS:-/}start-autopause
+  "${SCRIPTS:-/}start-autopause"
 fi
 
 if isTrue "${ENABLE_AUTOSTOP}"; then
-  ${SCRIPTS:-/}start-autostop
+  "${SCRIPTS:-/}start-autostop"
 fi
 
 if 
@@ -152,15 +132,34 @@ if
 then
   log "Starting RCON commands"
   # shellcheck source=start-rconcmds
-  ${SCRIPTS:-/}start-rconcmds
+  "${SCRIPTS:-/}start-rconcmds"
 fi
 
-if versionLessThan 1.7; then
-  echo "
-MC_HEALTH_EXTRA_ARGS=(
-  --use-server-list-ping
-)
-  " > /data/.mc-health.env
+: ${MOD_PLATFORM:=}
+case "${TYPE^^}" in
+  AUTO_CURSEFORGE|MODRINTH|CURSEFORGE|FTB|FTBA)
+    MOD_PLATFORM="$TYPE"
+  ;;
+esac
+
+if [[ $MOD_PLATFORM ]]; then
+  case "${MOD_PLATFORM^^}" in
+    FTB|CURSEFORGE)
+      exec "${SCRIPTS:-/}start-deployCF" "$@"
+    ;;
+
+    FTBA)
+      exec "${SCRIPTS:-/}start-deployFTBA" "$@"
+    ;;
+
+    AUTO_CURSEFORGE)
+      exec "${SCRIPTS:-/}start-deployAutoCF" "$@"
+      ;;
+
+    MODRINTH)
+      exec "${SCRIPTS:-/}start-deployModrinth" "$@"
+      ;;
+  esac
 fi
 
 log "Resolving type given ${TYPE}"
@@ -173,8 +172,11 @@ case "${TYPE^^}" in
     exec "${SCRIPTS:-/}start-deployPaper" "$@"
   ;;
 
+  FOLIA)
+    exec "${SCRIPTS:-/}start-deployFolia" "$@"
+  ;;
+
   FORGE)
-    evaluateJavaCompatibilityForForge
     exec "${SCRIPTS:-/}start-deployForge" "$@"
   ;;
 
@@ -186,16 +188,6 @@ case "${TYPE^^}" in
     exec "${SCRIPTS:-/}start-deployQuilt" "$@"
   ;;
   
-  FTBA)
-    evaluateJavaCompatibilityForForge
-    exec "${SCRIPTS:-/}start-deployFTBA" "$@"
-  ;;
-
-  FTB|CURSEFORGE)
-    evaluateJavaCompatibilityForForge
-    exec "${SCRIPTS:-/}start-deployCF" "$@"
-  ;;
-
   VANILLA)
     exec "${SCRIPTS:-/}start-deployVanilla" "$@"
   ;;
@@ -224,11 +216,6 @@ case "${TYPE^^}" in
     exec "${SCRIPTS:-/}start-deployCatserver" "$@"
   ;;
 
-  LOLISERVER)
-    evaluateJavaCompatibilityForForge
-    exec "${SCRIPTS:-/}start-deployLoliserver" "$@"
-  ;;
-
   PURPUR)
     exec "${SCRIPTS:-/}start-deployPurpur" "$@"
   ;;
@@ -246,12 +233,6 @@ case "${TYPE^^}" in
   ;;
 
   CRUCIBLE)
-    log "**********************************************************************"
-    log "WARNING: The image tag itzg/minecraft-server:java8 is recommended"
-    log "         since some mods require Java 8"
-    log "         Exception traces reporting ClassCastException: class jdk.internal.loader.ClassLoaders\$AppClassLoader"
-    log "         can be fixed with java8"
-    log "**********************************************************************"
     exec "${SCRIPTS:-/}start-deployCrucible" "$@"
   ;;
 
@@ -259,7 +240,7 @@ case "${TYPE^^}" in
       log "Invalid type: '$TYPE'"
       log "Must be: VANILLA, FORGE, BUKKIT, SPIGOT, PAPER, FTBA (multiarch-only),"
       log "         CURSEFORGE, SPONGEVANILLA, PURPUR, CUSTOM,"
-      log "         MAGMA, MOHIST, CATSERVER, LOLISERVER, AIRPLANE, PUFFERFISH, CANYON, LIMBO, CRUCIBLE"
+      log "         MAGMA, MOHIST, CATSERVER, AIRPLANE, PUFFERFISH, CANYON, LIMBO, CRUCIBLE"
       exit 1
   ;;
 

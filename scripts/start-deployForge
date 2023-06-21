@@ -11,7 +11,7 @@ if [[ ${FORGE_INSTALLER} ]]; then
   if ! mc-image-helper install-forge \
     --output-directory=/data \
     --results-file=/data/.run-forge.env \
-    --minecraft-version="${VANILLA_VERSION}" \
+    --minecraft-version="${VERSION}" \
     --forge-installer="${FORGE_INSTALLER}" \
     --force-reinstall="${FORGE_FORCE_REINSTALL}"; then
       log "ERROR failed to install Forge given installer ${FORGE_INSTALLER}"
@@ -22,7 +22,7 @@ else
   if ! mc-image-helper install-forge \
     --output-directory=/data \
     --results-file=/data/.run-forge.env \
-    --minecraft-version="${VANILLA_VERSION}" \
+    --minecraft-version="${VERSION}" \
     --forge-version="${FORGE_VERSION}" \
     --force-reinstall="${FORGE_FORCE_REINSTALL}"; then
       log "ERROR failed to install Forge"

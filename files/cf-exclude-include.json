@@ -1,0 +1,59 @@
+{
+  "globalExcludes": [
+    "ambientsounds",
+    "armor-toughness-bar",
+    "biomeinfo",
+    "block-drops-jei-addon",
+    "cherished-worlds",
+    "controlling",
+    "ctm",
+    "custom-main-menu",
+    "defensive-measures",
+    "ding",
+    "dynamiclights-reforged",
+    "enchantment-descriptions",
+    "entity-texture-features-fabric",
+    "entityculling",
+    "extreme-sound-muffler",
+    "ignitioncoil",
+    "just-enough-harvestcraft",
+    "just-enough-resources-jer",
+    "legendary-tooltips",
+    "loot-capacitor-tooltips",
+    "magnesium-extras",
+    "menumobs",
+    "minecraft-rich-presence",
+    "more-overlays",
+    "mouse-tweaks",
+    "neat",
+    "nekos-enchanted-books",
+    "no-recipe-book",
+    "not-enough-animations",
+    "oculus",
+    "oldjavawarning",
+    "overloaded-armor-bar",
+    "packmodemenu",
+    "reauth",
+    "resource-reloader",
+    "rubidium",
+    "rubidium-extra",
+    "skin-layers-3d",
+    "textrues-rubidium-options",
+    "thaumic-jei",
+    "tips",
+    "torohealth-damage-indicators",
+    "waila-harvestability"
+  ],
+  "modpacks": {
+    "all-of-fabric-6": {
+      "forceIncludes": [
+        "revelationary"
+      ]
+    },
+    "valhelsia-5": {
+      "excludes": [
+        "modernfix"
+      ]
+    }
+  }
+}

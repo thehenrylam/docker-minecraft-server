@@ -16,7 +16,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # NOTE: the "latest" variant is identified in the Docker meta step's 'latest' config
         variant:
+          - java20
+          - java20-alpine
           - java17
           - java17-graalvm-ce
           - java17-jdk
@@ -31,6 +34,15 @@ jobs:
           - java11-openj9
           - java11-jdk
         include:
+        # JAVA 20:
+          - variant: java20
+            baseImage: eclipse-temurin:20-jre
+            platforms: linux/amd64,linux/arm64
+            mcVersion: 1.19.3
+          - variant: java20-alpine
+            baseImage: eclipse-temurin:20-jre-alpine
+            platforms: linux/amd64
+            mcVersion: 1.19.3
         # JAVA 17:
           - variant: java17
             # jammy doesn't work until minecraft updates to https://github.com/netty/netty/issues/12343
@@ -106,12 +118,16 @@ jobs:
           # then the use of ${{ github.repository_owner }} will need to be replaced.
           images: |
             ${{ github.repository_owner }}/minecraft-server
+            ghcr.io/${{ github.repository_owner }}/minecraft-server
           tags: |
             type=ref,event=tag,enable=${{ matrix.variant == 'java17' }}
             type=ref,event=tag,suffix=-${{ matrix.variant }}
-            type=raw,value=${{ matrix.variant }}
+            type=ref,event=branch,suffix=-${{ matrix.variant }},enable=${{ github.ref_name != 'master' }}
+            type=raw,value=${{ matrix.variant }},enable=${{ github.ref_name == 'master' }}
+          # NOTE this identifies which variant will be published as "latest", which isn't
+          # necessarily the newest version of Java
           flavor: |
-            latest=${{ matrix.variant == 'java17' }}
+            latest=${{ matrix.variant == 'java17' && github.ref_name == 'master' }}
           labels: |
             org.opencontainers.image.authors=Geoff Bourne <itzgeoff@gmail.com>
 
@@ -119,10 +135,10 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2.1.0
+        uses: docker/setup-qemu-action@v2.2.0
 
       - name: Build for test
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v4.1.1
         with:
           platforms: linux/amd64
           tags: ${{ env.IMAGE_TO_TEST }}
@@ -141,6 +157,7 @@ jobs:
           MINECRAFT_VERSION: ${{ matrix.mcVersion }}
           VARIANT: ${{ matrix.variant }}
           MODS_FORGEAPI_KEY: ${{ secrets.MODS_FORGEAPI_KEY }}
+          CF_API_KEY: ${{ secrets.MODS_FORGEAPI_KEY }}
         run: |
           tests/test.sh
 
@@ -151,15 +168,24 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        if: env.HAS_IMAGE_REPO_ACCESS
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
       - name: Build and push
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v4.1.1
         if: github.actor == github.repository_owner
         with:
           platforms: ${{ matrix.platforms }}
           push: >
             ${{ 
             github.ref_type == 'tag' 
-            || github.ref_name == 'master' 
+            || github.ref_name == 'master'
+            || startsWith(github.ref_name, 'test/')
             || ( github.event_name == 'pull_request' 
                  && env.HAS_IMAGE_REPO_ACCESS 
                  && contains(github.event.pull_request.labels.*.name, 'ci/push-image') 
@@ -169,6 +195,9 @@ jobs:
           # ensure latest base image is used
           pull: true
           labels: ${{ steps.meta.outputs.labels }}
+          # Since some consumers, like Watchtower are broken https://github.com/containrrr/watchtower/discussions/1529
+          # Also refer to https://github.com/docker/build-push-action/releases/tag/v3.3.0
+          provenance: false
           build-args: |
             BASE_IMAGE=${{ matrix.baseImage }}
             BUILD_FILES_REV=${{ steps.build-files-rev.outputs.REV }}

@@ -2,11 +2,11 @@
 
 Adding a new server `TYPE` can vary due to the complexity of obtaining and configuring each type; however, the addition of any server type includes at least the following steps:
 
-1. Copy an existing "start-deploy*" script, such as [start-deployMohist](scripts/start-deployMohist) and rename it accordingly making sure to retain the "start-deploy" prefix
+1. Copy an existing "start-deploy*" script, such as [start-deployFabric](https://github.com/itzg/docker-minecraft-server/blob/master/scripts/start-deployFabric) and rename it accordingly making sure to retain the "start-deploy" prefix
 2. Modify the type-specific behavior between the "start-utils" preamble and the hand-off to `start-setupWorld` at the end of the script 
 3. Develop and test the changes using the [iterative process described below](#iterative-script-development)
-4. Add a case-entry to the `case "${TYPE^^}"` in [start-configuration](scripts/start-configuration)
-5. Add a section to the [README](README.md). It is recommended to copy-modify an existing section to retain a similar wording and level of detail
+4. Add a case-entry to the `case "${TYPE^^}"` in [start-configuration](https://github.com/itzg/docker-minecraft-server/blob/master/scripts/start-configuration)
+5. Add a section to the [docs](https://github.com/itzg/docker-minecraft-server/tree/master/docs). It is recommended to copy-modify an existing section to retain a similar wording and level of detail
 6. [Submit a pull request](https://github.com/itzg/docker-minecraft-server/pulls)
 
 ## Iterative script development
@@ -55,14 +55,14 @@ docker run -it --rm -v ${PWD}:/scripts -e SCRIPTS=/scripts/ --entrypoint bash mc
 From within the container you can run individual scripts via the attached `/scripts/` path; however, be sure to set any environment variables expected by the scripts by either `export`ing them manually:
 
 ```shell script
-export VANILLA_VERSION=1.12.2
+export VERSION=1.12.2
 /scripts/start-magma
 ```
 
 ...or pre-pending script execution:
 
 ```shell script
-VANILLA_VERSION=1.12.2 /scripts/start-magma
+VERSION=1.12.2 /scripts/start-magma
 ```
 
 > NOTE: You may want to temporarily add an `exit` statement near the end of your script to isolate execution to just the script you're developing.
@@ -75,17 +75,19 @@ In the cloned copy of [`mc-image-helper`](https://github.com/itzg/mc-image-helpe
 ./gradlew distTar
 ```
 
-Assuming [http-server](https://www.npmjs.com/package/http-server) is installed globally, start a static web server using:
+!!! note
+    The distribution's version will be `0.0.0-<branch>-SNAPSHOT`
+
+Assuming Java 18 or newer:
 
 ```shell
-http-server ./build/distributions -p 8080
+cd build/distributions
+jwebserver -b 0.0.0.0 -p 8008
 ```
-
-Note the port that was selected by http-server and pass the build arguments, such as:
 
 ```shell
 --build-arg MC_HELPER_VERSION=1.8.1-SNAPSHOT \
---build-arg MC_HELPER_BASE_URL=http://host.docker.internal:8080
+--build-arg MC_HELPER_BASE_URL=http://host.docker.internal:8008
 ```
 
 Now the image can be built like normal, and it will install mc-image-helper from the locally built copy.

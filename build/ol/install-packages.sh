@@ -1,6 +1,8 @@
 #!/bin/bash
 
-set -e
+export TARGET
+
+set -euo pipefail
 
 microdnf install dnf -y
 
@@ -33,6 +35,12 @@ dnf install -y ImageMagick \
   unzip \
   zstd \
   lbzip2 \
-  knock
+  libpcap \
+  libwebp
 
 bash /build/ol/install-gosu.sh
+
+# Patched knockd
+curl -fsSL -o /tmp/knock.tar.gz https://github.com/Metalcape/knock/releases/download/0.8.1/knock-0.8.1-$TARGET.tar.gz
+tar -xf /tmp/knock.tar.gz -C /usr/local/ && rm /tmp/knock.tar.gz
+ln -s /usr/local/sbin/knockd /usr/sbin/knockd
