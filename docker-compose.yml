@@ -2,22 +2,17 @@ version: "3.8"
 
 services:
   mc:
-    build:
-       context: .
-       dockerfile: Dockerfile
-    container_name: ${CONTAINER_NAME:-mcaws}
+    image: itzg/minecraft-server
     environment:
-      EULA: "TRUE"
-      SEED: 8959579621999288012
-      SNOOPER_ENABLED: "false"
-      TYPE: "PAPER"
-      MEMORY: "2G"
-      DIFFICULTY: "hard"
-      MOTD: "A very strange server"
+      RCON_PASSWORD: "test_rcon_minecraft" 
+      EULA: "true"
     ports:
       - "25565:25565"
+    volumes:
+      - data:/data
     stdin_open: true
     tty: true
     restart: unless-stopped
-    volumes:
-      - ./data:/data 
+volumes:
+  data: {}
+
