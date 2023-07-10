@@ -21,8 +21,19 @@ fi
 
 echo "Changing docker volume '${CUR_VOLUME}' to '${NEW_VOLUME}'"
 
+# Initialize the new volume
 docker volume create --name ${NEW_VOLUME}
-docker run --rm -it -v ${CUR_VOLUME}:/from -v ${NEW_VOLUME}:/to alpine ash -c "cd /from ; cp -av . /to"
+
+# Copy the old volume's data into the new volume
+docker container run --rm -it \
+	-v ${CUR_VOLUME}:/from \
+	-v ${NEW_VOLUME}:/to \
+	alpine ash -c "cd /from ; cp -av . /to"
+
+# Remove the containers that is owned by the volume
+./remove-containers-by-volume.sh ${CUR_VOLUME}
+
+# Remove the old volume
 docker volume rm ${CUR_VOLUME}
 
 echo "Docker volume name changed"
