@@ -14,5 +14,7 @@ services:
     tty: true
     restart: unless-stopped
 volumes:
-  data: {}
+  data:
+    name: docker-minecraft-server_data
+    external: true
 
