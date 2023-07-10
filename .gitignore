@@ -20,4 +20,5 @@ personal-build-and-develop.*
 *swp
 *.tar.bz2
 *.tar
+*.tar.gz 
 
