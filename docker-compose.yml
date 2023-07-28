@@ -4,8 +4,10 @@ services:
   mc:
     image: itzg/minecraft-server
     environment:
+      REPLACE_ENV_VARIABLES: "TRUE"
       SERVER_NAME: "Regular-Crafts"
       MOTD: "The Regular-Crafts Server"
+      TYPE: "PAPER"
       MAX_PLAYERS: 10
       VERSION: "1.20"
       RCON_PASSWORD: "test_rcon_minecraft" 
