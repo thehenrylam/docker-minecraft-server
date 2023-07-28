@@ -4,13 +4,15 @@ services:
   mc:
     image: itzg/minecraft-server
     environment:
-      SERVER_NAME: "Stranger Crafts"
-      VERSION: 1.20
+      SERVER_NAME: "Regular-Crafts"
+      MOTD: "The Regular-Crafts Server"
+      MAX_PLAYERS: 10
+      VERSION: "1.20"
       RCON_PASSWORD: "test_rcon_minecraft" 
       EULA: "true"
       SNOOPER_ENABLED: false
       SEED: "-4234144854417651709"
-      VIEW_DISTANCE: 10
+      VIEW_DISTANCE: 16
       FORCE_GAMEMODE: true
       MODE: "creative"
     ports:
