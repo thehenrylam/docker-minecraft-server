@@ -21,4 +21,6 @@ personal-build-and-develop.*
 *.tar.bz2
 *.tar
 *.tar.gz 
+mounts/*/*jar
+
 
