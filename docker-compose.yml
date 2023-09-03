@@ -5,6 +5,7 @@ services:
     image: itzg/minecraft-server
     environment:
       REPLACE_ENV_VARIABLES: "TRUE"
+      REMOVE_OLD_MODS: "TRUE"
       SERVER_NAME: "Regular-Crafts"
       MOTD: "The Regular-Crafts Server"
       TYPE: "PAPER"
@@ -14,13 +15,16 @@ services:
       EULA: "true"
       SNOOPER_ENABLED: false
       SEED: "-4234144854417651709"
+      DIFFICULTY: "Peaceful"
       VIEW_DISTANCE: 16
       FORCE_GAMEMODE: true
-      MODE: "creative"
+      MODE: "survival"
     ports:
       - "25565:25565"
     volumes:
       - data:/data
+      - ./mounts/plugins:/plugins
+      - ./mounts/mods:/mods
     stdin_open: true
     tty: true
     restart: unless-stopped
