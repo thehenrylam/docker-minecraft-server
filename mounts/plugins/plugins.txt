@@ -1,1 +1,12 @@
-# This is a placeholder file (for now)
+maven-test,minecraft/AntiPopup/6.2/AntiPopup-6.2.jar
+maven-test,minecraft/EssentialsX/2.20.0/EssentialsX-2.20.0.jar
+maven-test,minecraft/EssentialsXChat/2.20.0/EssentialsXChat-2.20.0.jar
+maven-test,minecraft/EssentialsXSpawn/2.20.0/EssentialsXSpawn-2.20.0.jar
+maven-test,minecraft/worldedit/bukkit-7.2.15/worldedit-bukkit-7.2.15.jar
+maven-test,minecraft/LuckPerms/Bukkit-5.4.102/LuckPerms-Bukkit-5.4.102.jar
+maven-test,minecraft/GriefPrevention/16.18.2-beta1/GriefPrevention-16.18.2-beta1.jar
+maven-test,minecraft/Vault/1.7.3/Vault-1.7.3.jar
+maven-test,minecraft/CommandWhitelist/Bukkit-2.8.1/CommandWhitelist-Bukkit-2.8.1.jar
+maven-test,minecraft/DecentHolograms/2.8.3/DecentHolograms-2.8.3.jar
+maven-test,minecraft/DiscordSRV/Build-1.26.2/DiscordSRV-Build-1.26.2.jar
+
