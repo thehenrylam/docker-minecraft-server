@@ -2,9 +2,11 @@ version: "3.8"
 
 services:
   mc:
-    image: itzg/minecraft-server
+    build: .
+    image: result/latest 
     environment:
-      REPLACE_ENV_VARIABLES: "TRUE"
+      REPLACE_ENV_VARIABLES: "TRUE" 
+      PLUGINS_SYNC_UPDATE: "FALSE" # Allows us to guarantee the that files from mounts/*/ can overwrite its respective files in the docker volume (even if the source is older than the destination)
       REMOVE_OLD_MODS: "TRUE"
       SERVER_NAME: "Regular-Crafts"
       MOTD: "The Regular-Crafts Server"
