@@ -23,4 +23,6 @@ personal-build-and-develop.*
 *.tar.gz 
 mounts/*/*jar
 
+# Ommission of secrets
+secrets.yml
 

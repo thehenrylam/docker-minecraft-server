@@ -1,0 +1,7 @@
+---
+- name: Deploy App
+  hosts: localhost
+  roles:
+    - "common"
+  vars_files:
+    - ../group_vars/secrets.yml

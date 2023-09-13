@@ -1,0 +1,9 @@
+---
+standard:
+  server_name: "The StrangeCraft Server (Dev-Ansible)"
+  month_of_the_day: "still looks pretty standard tbh..."
+  max_players: 12
+  gameplay: 
+    difficulty: "peaceful"
+    gamemode: "survival"
+    view_distance: 16
