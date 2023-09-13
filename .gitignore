@@ -32,3 +32,4 @@ mounts/plugins/DiscordSRV/config.yml
 mounts/plugins/Essentials/config.yml
 mounts/plugins/Essentials/spawn.yml
 mounts/plugins/Essentials/tpr.yml
+mounts/plugins/GriefPreventionData/config.yml

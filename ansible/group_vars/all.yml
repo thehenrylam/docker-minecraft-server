@@ -17,3 +17,9 @@ essentials:
     safety: "true"
     cooldown: 10
     delay: 10
+griefprevention:
+  claims:
+    mode:
+      netherworld: "Survival"
+      endworld: "Disabled"
+      overworld: "Survival"
