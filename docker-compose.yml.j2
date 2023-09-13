@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  mc:
+    build: .
+    image: result/latest 
+    environment:
+      REPLACE_ENV_VARIABLES: "TRUE" 
+      PLUGINS_SYNC_UPDATE: "FALSE" # Allows us to guarantee the that files from mounts/*/ can overwrite its respective files in the docker volume (even if the source is older than the destination)
+      REMOVE_OLD_MODS: "TRUE"
+      SERVER_NAME: "{{ standard.server_name }}"
+      MOTD: "{{ standard.message_of_the_day }}"
+      TYPE: "PAPER"
+      MAX_PLAYERS: {{ standard.max_players }}
+      VERSION: "{{ standard.version_number }}"
+      RCON_PASSWORD: "test_rcon_minecraft" 
+      EULA: "true"
+      SNOOPER_ENABLED: false
+      SEED: "{{ standard.world_seed }}"
+      DIFFICULTY: "{{ standard.gameplay.difficulty }}"
+      VIEW_DISTANCE: {{ standard.gameplay.view_distance }}
+      FORCE_GAMEMODE: true
+      MODE: "{{ standard.gameplay.gamemode }}"
+    ports:
+      - "25565:25565"
+    volumes:
+      - data:/data
+      - ./mounts/plugins:/plugins
+      - ./mounts/mods:/mods
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+volumes:
+  data:
+    name: docker-minecraft-server_data
+    external: true
+
