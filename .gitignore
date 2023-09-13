@@ -29,3 +29,6 @@ secrets.yml
 # Omit files that are supposed to be templated by .j2 files
 docker-compose.yml
 mounts/plugins/DiscordSRV/config.yml
+mounts/plugins/Essentials/config.yml
+mounts/plugins/Essentials/spawn.yml
+mounts/plugins/Essentials/tpr.yml

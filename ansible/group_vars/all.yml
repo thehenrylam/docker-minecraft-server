@@ -11,3 +11,9 @@ standard:
     view_distance: 16
 discord:
   invite_link: "https://discord.gg/changethisintheconfig.yml"
+essentials:
+  overworld_uuid: "32874b39-cbce-41b1-97b5-0b0b1dd6f9e6"
+  teleport:
+    safety: "true"
+    cooldown: 10
+    delay: 10
