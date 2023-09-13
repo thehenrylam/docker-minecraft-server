@@ -23,3 +23,5 @@ griefprevention:
       netherworld: "Survival"
       endworld: "Disabled"
       overworld: "Survival"
+luckperms:
+  storage_method: "sqlite"
