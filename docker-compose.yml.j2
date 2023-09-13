@@ -13,7 +13,7 @@ services:
       TYPE: "PAPER"
       MAX_PLAYERS: {{ standard.max_players }}
       VERSION: "{{ standard.version_number }}"
-      RCON_PASSWORD: "test_rcon_minecraft" 
+      RCON_PASSWORD: "{{ secrets.rcon_password }}" 
       EULA: "true"
       SNOOPER_ENABLED: false
       SEED: "{{ standard.world_seed }}"
