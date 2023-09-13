@@ -26,3 +26,5 @@ mounts/*/*jar
 # Ommission of secrets
 secrets.yml
 
+# Omit files that are supposed to be templated by .j2 files
+./docker-compose.yml
