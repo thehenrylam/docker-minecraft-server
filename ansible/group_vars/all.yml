@@ -9,3 +9,5 @@ standard:
     difficulty: "peaceful"
     gamemode: "survival"
     view_distance: 16
+discord:
+  invite_link: "https://discord.gg/changethisintheconfig.yml"
