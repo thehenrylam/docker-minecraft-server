@@ -8,19 +8,19 @@ services:
       REPLACE_ENV_VARIABLES: "TRUE" 
       PLUGINS_SYNC_UPDATE: "FALSE" # Allows us to guarantee the that files from mounts/*/ can overwrite its respective files in the docker volume (even if the source is older than the destination)
       REMOVE_OLD_MODS: "TRUE"
-      SERVER_NAME: "Regular-Crafts"
-      MOTD: "The Regular-Crafts Server"
+      SERVER_NAME: "{{ standard.server_name }}"
+      MOTD: "{{ standard.message_of_the_day }}"
       TYPE: "PAPER"
-      MAX_PLAYERS: 10
-      VERSION: "1.20"
-      RCON_PASSWORD: "test_rcon_minecraft" 
+      MAX_PLAYERS: {{ standard.max_players }}
+      VERSION: "{{ standard.version_number }}"
+      RCON_PASSWORD: "{{ secrets.rcon_password }}" 
       EULA: "true"
       SNOOPER_ENABLED: false
-      SEED: "-4234144854417651709"
-      DIFFICULTY: "Peaceful"
-      VIEW_DISTANCE: 16
+      SEED: "{{ standard.world_seed }}"
+      DIFFICULTY: "{{ standard.gameplay.difficulty }}"
+      VIEW_DISTANCE: {{ standard.gameplay.view_distance }}
       FORCE_GAMEMODE: true
-      MODE: "survival"
+      MODE: "{{ standard.gameplay.gamemode }}"
     ports:
       - "25565:25565"
     volumes:
