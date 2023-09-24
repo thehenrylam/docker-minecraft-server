@@ -23,4 +23,15 @@ personal-build-and-develop.*
 *.tar.gz 
 mounts/*/*jar
 
+# Ommission of secrets
+secrets.yml
+*.key
 
+# Omit files that are supposed to be templated by .j2 files
+docker-compose.yml
+mounts/plugins/DiscordSRV/config.yml
+mounts/plugins/Essentials/config.yml
+mounts/plugins/Essentials/spawn.yml
+mounts/plugins/Essentials/tpr.yml
+mounts/plugins/GriefPreventionData/config.yml
+mounts/plugins/LuckPerms/config.yml

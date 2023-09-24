@@ -1,0 +1,18 @@
+---
+- name: Get the list of all .j2 files
+  find:
+    path: "../../"
+    patterns: "*.j2"
+    recurse: yes
+  register: all_j2_files
+
+- name: List all .j2 file
+  debug: 
+    msg: "{{ item.path }}"
+  with_items: "{{ all_j2_files.files }}"
+
+- name: Applying variables to ALL j2 template files
+  template:
+    src: "{{ item.path }}"
+    dest: "{{ item.path | regex_replace('\\.j2$', '') }}"
+  with_items: "{{ all_j2_files.files }}"
