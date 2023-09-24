@@ -1,0 +1,47 @@
+
+# Messages use MiniMessage formatting (https://docs.adventure.kyori.net/minimessage/format)
+messages:
+  prefix: 'CommandWhitelist > '
+  command_denied: No such command.
+  subcommand_denied: You cannot use this subcommand
+  no_permission: <red>You don't have permission to do this.
+  no_such_subcommand: <red>No subcommand by that name.
+  config_reloaded: <yellow>Configuration reloaded.
+  added_to_whitelist: <yellow>Whitelisted command <gold>%s <yellow>for permission
+    <gold>%s
+  removed_from_whitelist: <yellow>Removed command <gold>%s <yellow>from permission
+    <gold>%s
+  group_doesnt_exist: <red>Group doesn't exist or error occured
+
+# Do not enable if you don't have issues with aliased commands.
+# This requires server restart to take effect.
+use_protocollib: false
+groups:
+  default:
+    commands:
+    - rules
+    - tprandom
+    - sethome
+    - delhome
+    - home
+    - spawn
+    - abandonallclaims
+    - accesstrust
+    - basicclaims
+    - claim
+    - claimexplosion
+    - claimlist
+    - containertrust
+    - abandonallclaims
+    - abandonclaim
+    - abandontoplevelclaim
+    - createhome
+    - permissiontrust
+    - resizeclaim
+    - restrictsubclaim
+    - subdivideclaim
+    - trust
+    - trustlist
+    - untrust
+    subcommands:
+    - help about
