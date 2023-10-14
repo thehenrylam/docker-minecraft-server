@@ -1,10 +1,10 @@
 ---
 standard:
   version_number: "1.20"
-  server_name: "The StrangeCraft Server (Dev-Ansible)"
-  message_of_the_day: "still looks pretty standard tbh..."
+  server_name: "Hello World 987654321!"
+  message_of_the_day: "This is a demo"
   world_seed: "-4234144854417651709"
-  max_players: 12
+  max_players: 99
   gameplay: 
     difficulty: "peaceful"
     gamemode: "survival"
