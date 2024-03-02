@@ -7,7 +7,7 @@ standard:
   max_players: 12
   max_memory: "4G"
   gameplay: 
-    difficulty: "peaceful"
+    difficulty: "hard"
     gamemode: "survival"
     view_distance: 16
 discord:
