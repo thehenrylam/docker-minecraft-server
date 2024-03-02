@@ -5,6 +5,7 @@ standard:
   message_of_the_day: "still looks pretty standard tbh..."
   world_seed: "-4234144854417651709"
   max_players: 12
+  max_memory: "4G"
   gameplay: 
     difficulty: "peaceful"
     gamemode: "survival"

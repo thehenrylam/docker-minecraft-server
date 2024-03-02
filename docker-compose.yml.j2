@@ -21,6 +21,7 @@ services:
       VIEW_DISTANCE: {{ standard.gameplay.view_distance }}
       FORCE_GAMEMODE: true
       MODE: "{{ standard.gameplay.gamemode }}"
+      MAX_MEMORY: "{{ standard.max_memory }}"
     ports:
       - "25565:25565"
     volumes:
