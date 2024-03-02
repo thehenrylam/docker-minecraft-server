@@ -9,3 +9,4 @@ mvn,minecraft/Vault/1.7.3/Vault-1.7.3.jar
 mvn,minecraft/CommandWhitelist/Bukkit-2.8.2/CommandWhitelist-Bukkit-2.8.2.jar
 mvn,minecraft/DecentHolograms/2.8.6/DecentHolograms-2.8.6.jar
 mvn,minecraft/DiscordSRV/Build-1.27.0/DiscordSRV-Build-1.27.0.jar
+mvn,minecraft/Chunky/1.3.136/Chunky-1.3.136.jar
